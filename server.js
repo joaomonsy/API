@@ -1,64 +1,71 @@
-import express from 'express'
-import { PrismaClient } from '@prisma/client'
+    import express from 'express'
+    import cors from 'cors'
+    import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
-const app = express()
+    const prisma = new PrismaClient()
+    const app = express()
 
-app.use(express.json())
+    app.use(express.json())
+    app.use(cors())
 
-// ROTA PARA CRIAR USUÁRIO
-app.post('/usuarios', async (req, res) => {
-    await prisma.user.create({
-        data: {
-            email: req.body.email,
-            name: req.body.name,
-            age: req.body.age
-        }
-    })
-    res.status(201).json(req.body) 
-})
-
-// ROTA PARA LISTAR USUÁRIOS (COM FILTROS OPCIONAIS)
-app.get('/usuarios', async (req, res) => {
-    let users = []
-
-    if (req.query.name || req.query.email || req.query.age) {
-        users = await prisma.user.findMany({
-            where: {
-                name: req.query.name,
-                email: req.query.email,
-                age: req.query.age
+    // ROTA PARA CRIAR USUÁRIO
+    app.post('/usuarios', async (req, res) => {
+        await prisma.user.create({
+            data: {
+                email: req.body.email,
+                name: req.body.name,
+                age: req.body.age
             }
-        }) 
-    } else {
-        users = await prisma.user.findMany() 
-    }
-    res.status(200).json(users)
-})
-
-// ROTA PARA EDITAR USUÁRIO
-app.put('/usuarios/:id', async (req, res) => {
-    await prisma.user.update({
-        where: {
-            id: req.params.id 
-        },
-        data: {
-            email: req.body.email,
-            name: req.body.name,
-            age: req.body.age
-        }
+        })
+        res.status(201).json(req.body) 
     })
-    res.status(201).json(req.body)
-})
 
-// ROTA PARA DELETAR USUÁRIO
-app.delete('/usuarios/:id', async (req, res) => {
-    await prisma.user.delete({
-        where: {
-            id: req.params.id 
+    // ROTA PARA LISTAR USUÁRIOS (COM FILTROS OPCIONAIS)
+    app.get('/usuarios', async (req, res) => {
+        let users = []
+
+        if (req.query.name || req.query.email || req.query.age) {
+            users = await prisma.user.findMany({
+                where: {
+                    name: req.query.name,
+                    email: req.query.email,
+                    age: req.query.age
+                }
+            }) 
+        } else {
+            users = await prisma.user.findMany() 
         }
+        res.status(200).json(users)
     })
-    res.status(200).json({ message: 'Usuário deletado com sucesso' }) 
-})
 
-app.listen(3000)
+    // ROTA PARA EDITAR USUÁRIO
+    app.put('/usuarios/:id', async (req, res) => {
+        await prisma.user.update({
+            where: {
+                id: req.params.id 
+            },
+            data: {
+                email: req.body.email,
+                name: req.body.name,
+                age: req.body.age
+            }
+        })
+        res.status(201).json(req.body)
+    })
+
+    // ROTA PARA DELETAR USUÁRIO
+    app.delete('/usuarios/:id', async (req, res) => {
+        await prisma.user.delete({
+            where: {
+                id: req.params.id 
+            }
+        })
+        res.status(200).json({ message: 'Usuário deletado com sucesso' }) 
+    })
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Servidor iniciado com sucesso!`);
+    console.log(`📡 Acesse: http://localhost:${PORT}`);
+});
